@@ -1,0 +1,11 @@
+{
+	"id": "self-hosted-sync",
+	"name": "Self hosted sync",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Self hosted version of obsidian sync",
+	"author": "FirepantsCZ",
+	"authorUrl": "",
+	"fundingUrl": "",
+	"isDesktopOnly": false
+}
