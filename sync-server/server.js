@@ -29,8 +29,12 @@ net.createServer()
     socket.on('data', function (buffer) {
         var request = JSON.parse(buffer.toString());
         console.log("recieved data:\n".concat(JSON.stringify(request, null, 2)));
-        if (request.mode == "downlad") {
+        if (request.mode == "download") {
             console.log("download request");
+            var fileMap = JSON.parse((0, fs_1.readFileSync)("vaults/".concat(request.params.vaultName, "/.map")).toString());
+            var downloadBuffer = { mode: "download", params: fileMap };
+            downloadBuffer.params.items = downloadBuffer.params.items.map(function (item) { item.data = (0, fs_1.readFileSync)("vaults/".concat(request.params.vaultName, "/").concat(item.path, "/").concat(item.name)).toString(); return item; });
+            socket.write(JSON.stringify(downloadBuffer));
             return;
         }
         if (request.mode == "upload") {
@@ -39,7 +43,7 @@ net.createServer()
             noDataVault.items = JSON.parse(JSON.stringify(vaultData_1.items));
             noDataVault.items = noDataVault.items.map(function (item) { item.data = ""; return item; });
             noDataVault.vaultName = vaultData_1.vaultName;
-            console.log(JSON.stringify(vaultData_1, null, 2));
+            //console.log(JSON.stringify(vaultData, null, 2))
             (0, fs_extra_1.ensureFile)("vaults/".concat(request.params.vaultName, "/.map"));
             //var fileMap = readFileSync(`vaults/${request.params.vaultName}/.map`)
             (0, fs_1.writeFileSync)("vaults/".concat(request.params.vaultName, "/.map"), JSON.stringify(noDataVault));
@@ -50,7 +54,7 @@ net.createServer()
             // now all connected clients reload
             var responseBuffer = { mode: "update", params: {} };
             responseBuffer.params = vaultData_1;
-            socketsBroadcast(JSON.stringify(responseBuffer), undefined);
+            socketsBroadcast(JSON.stringify(responseBuffer), undefined); // CHANGE THIS UNDEFINED TO socket
             return;
         }
     });

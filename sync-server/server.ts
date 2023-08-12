@@ -49,8 +49,15 @@ net.createServer()
 	socket.on('data', buffer => {
 	    const request = JSON.parse(buffer.toString())
 	    console.log(`recieved data:\n${JSON.stringify(request, null, 2)}`)
-	    if(request.mode == "downlad"){
+	    if(request.mode == "download"){
 		console.log("download request")
+
+		var fileMap = JSON.parse(readFileSync(`vaults/${request.params.vaultName}/.map`).toString())
+
+		var downloadBuffer = {mode: "download", params: fileMap}
+		downloadBuffer.params.items = downloadBuffer.params.items.map((item: {path: String; name: String; data: String}) => {item.data = readFileSync(`vaults/${request.params.vaultName}/${item.path}/${item.name}`).toString(); return item})
+
+		socket.write(JSON.stringify(downloadBuffer))
 
 		return
 	    }
