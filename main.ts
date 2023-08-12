@@ -40,7 +40,16 @@ export default class SelfSyncPlugin extends Plugin {
 		/*this.registerDomEvent(document, 'keypress', (event) => {
 		    console.log(event)
 		})*/
-
+		
+		var containers = [].slice.call(document.getElementsByClassName("workspace-tab-container")) 
+		containers.forEach((container: HTMLElement) => {
+		    this.registerDomEvent(container, 'keypress', (ev) => {
+			console.log(ev)
+		    });
+		    this.registerDomEvent(container, 'click', (ev) => {
+			this.sync()
+		    });
+		}) // could probabthis.sync
 
 		const files = this.app.vault.getFiles() 
 
