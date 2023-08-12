@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 export default class SelfSyncPlugin extends Plugin {
 	settings: MyPluginSettings;
 	connection: net.Socket;
+	lastTime: number = 0;
 
 	async onload() {
 		await this.loadSettings();
@@ -45,7 +46,10 @@ export default class SelfSyncPlugin extends Plugin {
 
 		this.registerEvent(this.app.metadataCache.on('changed', (file) => {
 		    console.log(file.name)
-		    this.sync()
+		    if((Date.now() - this.lastTime) > 500){
+			this.sync()
+			this.lastTime = Date.now()
+		    }
 		})
 )
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
