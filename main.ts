@@ -12,8 +12,8 @@ interface MyPluginSettings {
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-	serverAddress : "192.168.1.197",
-	serverPort: 3000,
+	serverAddress : "31.30.177.68",
+	serverPort: 4242,
 	vaultPassword: ""
 }
 
@@ -78,6 +78,7 @@ export default class SelfSyncPlugin extends Plugin {
 	    if(this.connection){
 		this.connection.end()
 	    }
+	    console.log(`Trying to connect to ${this.settings.serverAddress}:${this.settings.serverPort}`)
 	    this.connection = net.connect(this.settings.serverPort, this.settings.serverAddress)
 
 	    this.connection.on('connect', () => {
@@ -169,13 +170,24 @@ class SampleSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('Server address')
+			.setDesc('Address of sync server')
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
+				.setPlaceholder('address here')
+				.setValue(this.plugin.settings.serverAddress)
 				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
+					this.plugin.settings.serverAddress = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Server port')
+			.setDesc('Port of sync server')
+			.addText(text => text
+				.setPlaceholder('port here')
+				.setValue(this.plugin.settings.serverPort.toString())
+				.onChange(async (value) => {
+					this.plugin.settings.serverPort = +value;
 					await this.plugin.saveSettings();
 				}));
 	}

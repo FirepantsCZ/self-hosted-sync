@@ -1,6 +1,6 @@
 import * as net from 'net'
 import { readFileSync, writeFileSync, mkdir} from 'fs'
-import { ensureDirSync, ensureFile } from 'fs-extra';
+import { ensureDirSync, ensureFile, ensureFileSync, existsSync} from 'fs-extra';
 
 interface VaultData {
     vaultName: String;
@@ -19,7 +19,7 @@ interface Request {
 }
 
 
-const PORT = 3000
+const PORT = 4242
 const IP = '192.168.1.197'
 const BACKLOG = 100
 
@@ -52,10 +52,16 @@ net.createServer()
 	    if(request.mode == "download"){
 		console.log("download request")
 
-		var fileMap = JSON.parse(readFileSync(`vaults/${request.params.vaultName}/.map`).toString())
+		if(existsSync(`vaults/${request.params.vaultName}/.map`)){
+		    var fileMap = JSON.parse(readFileSync(`vaults/${request.params.vaultName}/.map`).toString())
 
-		var downloadBuffer = {mode: "download", params: fileMap}
-		downloadBuffer.params.items = downloadBuffer.params.items.map((item: {path: String; name: String; data: String}) => {item.data = readFileSync(`vaults/${request.params.vaultName}/${item.path}/${item.name}`).toString(); return item})
+		    var downloadBuffer = {mode: "download", params: fileMap}
+		    downloadBuffer.params.items = downloadBuffer.params.items.map((item: {path: String; name: String; data: String}) => {item.data = readFileSync(`vaults/${request.params.vaultName}/${item.path}/${item.name}`).toString(); return item})
+		}
+
+		else{
+		    downloadBuffer = {mode: "download", params: {}}
+		}
 
 		socket.write(JSON.stringify(downloadBuffer))
 
@@ -72,8 +78,7 @@ net.createServer()
 		//console.log(JSON.stringify(vaultData, null, 2))
 		
 
-		ensureFile(`vaults/${request.params.vaultName}/.map`)
-		//var fileMap = readFileSync(`vaults/${request.params.vaultName}/.map`)
+		ensureFileSync(`vaults/${request.params.vaultName}/.map`)
 		writeFileSync(`vaults/${request.params.vaultName}/.map`, JSON.stringify(noDataVault))
  
 
