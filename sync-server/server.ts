@@ -87,7 +87,7 @@ net.createServer()
 		var responseBuffer = {mode: "update", params: {}}
 		responseBuffer.params = vaultData
 		
-		socketsBroadcast(JSON.stringify(responseBuffer), undefined) // CHANGE THIS UNDEFINED TO socket
+		socketsBroadcast(JSON.stringify(responseBuffer), socket) // CHANGE THIS UNDEFINED TO socket
 
 		return
 	    }

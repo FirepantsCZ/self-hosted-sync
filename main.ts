@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, MetadataCache, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
 import * as net from 'net'
 import {readFileSync, writeFileSync} from 'fs';
 import { ensureDirSync } from 'fs-extra';
@@ -36,7 +36,18 @@ export default class SelfSyncPlugin extends Plugin {
 		    this.sync()
 		});
 
+		/*this.registerDomEvent(document, 'keypress', (event) => {
+		    console.log(event)
+		})*/
 
+
+		const files = this.app.vault.getFiles() 
+
+		this.registerEvent(this.app.metadataCache.on('changed', (file) => {
+		    console.log(file.name)
+		    this.sync()
+		})
+)
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
 		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
@@ -67,6 +78,8 @@ export default class SelfSyncPlugin extends Plugin {
 
 	    this.connection.on('connect', () => {
 		console.log(`connected to ${this.connection.remoteAddress}:${this.connection.remotePort}`)
+		this.connection.write(JSON.stringify({mode:"download", params:{vaultName: this.app.vault.getName()}}))
+
 	    });
 
 	    this.connection.on('data', buffer => {
@@ -79,6 +92,9 @@ export default class SelfSyncPlugin extends Plugin {
 			ensureDirSync(`${this.app.vault.adapter.basePath}/${item.path}`)
 			writeFileSync(`${this.app.vault.adapter.basePath}/${item.path}/${item.name}`, item.data.toString())
 		    })
+		}
+		else if(response.mode == "download"){
+		    console.log("download response")
 		}
 	    });
 	}

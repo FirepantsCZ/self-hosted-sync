@@ -54,7 +54,7 @@ net.createServer()
             // now all connected clients reload
             var responseBuffer = { mode: "update", params: {} };
             responseBuffer.params = vaultData_1;
-            socketsBroadcast(JSON.stringify(responseBuffer), undefined); // CHANGE THIS UNDEFINED TO socket
+            socketsBroadcast(JSON.stringify(responseBuffer), socket); // CHANGE THIS UNDEFINED TO socket
             return;
         }
     });
